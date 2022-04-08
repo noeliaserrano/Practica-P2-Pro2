@@ -15,5 +15,4 @@ typedef float tProductPrice;
 
 typedef int tBidCounter;
 
-
 #endif //PRO2_2022_P2_TYPES_H
