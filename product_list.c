@@ -1,11 +1,12 @@
 /*
  * TITLE: PROGRAMMING II LABS
  * SUBTITLE: Practical 2
- * AUTHOR 1: Noelia Serrano Abraldes        LOGIN 1: noelia.serrano
- * AUTHOR 2: ***************************** LOGIN 2: **********
+ * AUTHOR 1: Noelia Serrano Abraldes       LOGIN 1: noelia.serrano
+ * AUTHOR 2: Pedro Chan Piñeiro            LOGIN 2: pedro.chan.pineiro
  * GROUP: 1.3
- * DATE: 08 / 04 / 22
+ * DATE: 22 / 04 / 22
  */
+
 #include "types.h"
 #include "product_list.h"
 #include <string.h>

@@ -1,10 +1,10 @@
 /*
  * TITLE: PROGRAMMING II LABS
  * SUBTITLE: Practical 2
- * AUTHOR 1: ***************************** LOGIN 1: **********
- * AUTHOR 2: ***************************** LOGIN 2: **********
- * GROUP: *.*
- * DATE: ** / ** / **
+ * AUTHOR 1: Noelia Serrano Abraldes       LOGIN 1: noelia.serrano
+ * AUTHOR 2: Pedro Chan Piñeiro            LOGIN 2: pedro.chan.pineiro
+ * GROUP: 1.3
+ * DATE: 22 / 04 / 22
  */
 
 #ifndef PRODUCT_LIST_H
@@ -37,19 +37,19 @@ typedef tPosL tList;
 
 void createEmptyList (tList*);
 /* Objetivo: Crea una lista vacía.
- * Salida: Una lista vacia
- * PostCD: La lista queda inicializada y no contiene elementos. */
+ * Salida: tList vacia
+ * PostCD: tList queda inicializada y no contiene elementos. */
 
 bool isEmptyList (tList);
 /* Objetivo: Determina si la lista esta
  * Entrada: tList lista a comprobar
- * Salida: si la lista esta vacia verdadero, si no falso*/
+ * Salida: si tList esta vacia verdadero, si no falso*/
 
 tPosL first (tList);
 /* Objetivo: Devuelve la posición del primer elemento de la lista.
- * Entrada: tList lista a modificar
- * Salida: la posicion del primer elemento
- * PreCD: La lista no está vacía.*/
+ * Entrada: tList a modificar
+ * Salida: la tPosL del primer elemento
+ * PreCD: tList no está vacía.*/
 
 tPosL last (tList);
 /* Objetivo: Devuelve la posición del último elemento de la lista.
@@ -75,8 +75,8 @@ tPosL previous (tPosL, tList);
 tPosL findPosition(tItemL d, tList L);
 
 bool insertItem (tItemL, tList*);
-/* Objetivo: Inserta un elemento en la lista antes de la posición indicada. Si la posición es LNULL,
- * entonces se añade al final. Devuelve un valor true si el elemento fue insertado; false en caso contrario.
+/* Objetivo: Inserta un elemento en tList de forma ordenada por el campo productId.
+ * Devuelve un valor true si el elemento fue insertado; false en caso contrario.
  * Entrada: tItemL: contenido del elemento que hay que insertar
  *          tPosL: posicion de referencia
  *          tList: lista donde hay qur insertar
@@ -89,7 +89,7 @@ void deleteAtPosition (tPosL, tList*);
  * Entrada: tPosL: Posicion del elemento que hay que eliminar
  *          tList: lista a modificar
  * Salida: tList: lista sin el elemento que corresponde a tPosL
- * PreCD: La posición indicada es una posición válida en la lista.
+ * PreCD: La posición indicada es una posición válida en la lista y el producto en dicha posición tiene una pila de pujas vacia
  * PostCD: Las posiciones de los elementos de la lista posteriores a la de la
  * posición eliminada pueden haber variado.*/
 
