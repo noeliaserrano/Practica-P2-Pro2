@@ -19,19 +19,15 @@
 
 void new(char *productId, char *userId, char *productCategory, float productPrice, tList *L) {
     tItemL productData;
-    //tItemS elemento;
 
     productData.bidCounter = 0;
     createEmptyStack(&productData.bidStack);
-    /*strcpy(elemento.bidder, userId);
-    elemento.productPrice = productPrice;*/
 
     //copiamos los elementos que va a tener la lista
     strcpy(productData.productId, productId);
     strcpy(productData.seller, userId);
     productData.productPrice = productPrice;
 
-    //seleccionamos la categoria que queremos
     if (strcmp(productCategory, "book") == 0)
         productData.productCategory = book;
     else productData.productCategory = painting;
@@ -81,7 +77,7 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
         printf("+ Error: Bid not possible\n");
         return;
     }
-    aux = getItem(p, *L);
+    aux = getItem(p, L);
 
     if(strcmp(aux.seller, userId) == 0 || aux.productPrice >= productPrice || aux.bidStack.top == SMAX-1)
         printf("+ Error: Bid not possible\n");
@@ -89,7 +85,7 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
     else{
         strcpy(elemento.bidder, userId);
         elemento.productPrice=productPrice;
-        aux.productPrice = productPrice;
+        //aux.productPrice = productPrice;
         aux.bidCounter = aux.bidCounter+1;
 
         printf("* Bid: product %s seller %s ", productId, aux.seller);
@@ -108,6 +104,9 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
 void stats(tList list){
     tPosL p;
     tItemL aux;
+    tItemL aux2;
+
+    createEmptyStack(&aux2.bidStack);
 
     int bookCont = 0;           //contador de libros
     float bookSumPrice = 0;     //suma el precio de los libros
@@ -118,6 +117,7 @@ void stats(tList list){
     float paintMediaPrice;      //media de los precios
 
     float incremento;
+    float precio;
 
     if(isEmptyList(list)){
         printf("+ Error: Stats not possible\n");
@@ -126,6 +126,12 @@ void stats(tList list){
 
     for (p=first(list); p!=LNULL; p=next(p, list)) {
         aux= getItem(p, list);
+
+        if(!isEmptyStack(aux.bidStack))
+            precio = aux.bidStack.data[aux.bidStack.top].productPrice;
+        else
+            precio = aux.productPrice;
+
         printf("Product %s seller %s ", aux.productId, aux.seller);
 
         if(aux.productCategory==book){          //si categoria es libro
@@ -140,11 +146,18 @@ void stats(tList list){
 
             printf("category %s ", "painting");
         }
+
         if(isEmptyStack(aux.bidStack))
             printf("price %0.2f. No bids\n", aux.productPrice);
         else
             printf("price %0.2f bids %d top bidder %s\n",
-                   aux.productPrice, aux.bidCounter, aux.bidStack.data[aux.bidStack.top].bidder);
+                   precio, aux.bidCounter, aux.bidStack.data[aux.bidStack.top].bidder);
+
+            if(isEmptyStack(aux2.bidStack)){
+                aux2=aux;
+            }
+            if(aux.bidStack.data[aux.bidStack.top].productPrice>aux2.bidStack.data[aux2.bidStack.top].productPrice)
+                aux2=aux;
     }
 
     //calculamos el precio medio
@@ -165,19 +178,18 @@ void stats(tList list){
 
     //pila de pujas
 
-    if(isEmptyStack(aux.bidStack))
+    if(isEmptyStack(aux2.bidStack))
         printf("Top bid not possible\n");
 
     else{
-
-        printf("Product %s seller %s ", aux.productId, aux.seller);
-        if(aux.productCategory == painting)
+        printf("Top bid: Product %s seller %s ", aux2.productId, aux2.seller);
+        if(aux2.productCategory == painting)
             printf("category %s ", "painting");
         else printf("category %s ", "book");
 
-        printf("price %0.2f bidder %s top price %0.2f\n", aux.productPrice, aux.bidStack.data[aux.bidStack.top].bidder, aux.bidStack.data[aux.bidStack.top].productPrice);
-        incremento = (aux.bidStack.data[aux.bidStack.top].productPrice - aux.productPrice)/(aux.productPrice);
-        printf("increase %0.2f", incremento*100) ;
+        printf("price %0.2f bidder %s top price %0.2f ", aux2.productPrice, aux2.bidStack.data[aux2.bidStack.top].bidder, aux2.bidStack.data[aux2.bidStack.top].productPrice);
+        incremento = (aux2.bidStack.data[aux2.bidStack.top].productPrice - aux2.productPrice)/(aux2.productPrice);
+        printf("increase %0.2f%\n", incremento*100) ;
     }
 }
 
