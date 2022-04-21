@@ -104,17 +104,12 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
 
 void stats(tList list){
     tPosL p;
-<<<<<<< HEAD
     tItemL aux, aux2;
     tItemS a;
     float b = 0;
     float c = 0;
-=======
-    tItemL aux;
-    tItemL aux2;
 
     createEmptyStack(&aux2.bidStack);
->>>>>>> origin/master
 
     int bookCont = 0;           //contador de libros
     float bookSumPrice = 0;     //suma el precio de los libros
@@ -155,7 +150,7 @@ void stats(tList list){
             printf("category %s ", "painting");
         }
 
-<<<<<<< HEAD
+
         printf("price %0.2f bids %d\n", aux.productPrice, aux.bidCounter);
 
         ///
@@ -168,7 +163,6 @@ void stats(tList list){
         }
         ///
 
-=======
         if(isEmptyStack(aux.bidStack))
             printf("price %0.2f. No bids\n", aux.productPrice);
         else
@@ -180,7 +174,6 @@ void stats(tList list){
             }
             if(aux.bidStack.data[aux.bidStack.top].productPrice>aux2.bidStack.data[aux2.bidStack.top].productPrice)
                 aux2=aux;
->>>>>>> origin/master
     }
 
 
@@ -200,7 +193,6 @@ void stats(tList list){
     printf("\nCategory  Products    Price  Average\n");
     printf("Book      %8d %8.2f %8.2f\n", bookCont, bookSumPrice, bookMediaPrice);
     printf("Painting  %8d %8.2f %8.2f\n", paintingCont, paintSumPrice, paintMediaPrice);
-<<<<<<< HEAD
     ///
     if(c != 0){
         printf("Top bid: Product %s seller %s category %s price %.2f bidder %s top price %.2f increase %.2f%%\n",
@@ -209,8 +201,7 @@ void stats(tList list){
     } else {
         printf("Top bid: not possible\n");
     }
-    ///
-=======
+
 
 
     //pila de pujas
@@ -228,7 +219,6 @@ void stats(tList list){
         incremento = (aux2.bidStack.data[aux2.bidStack.top].productPrice - aux2.productPrice)/(aux2.productPrice);
         printf("increase %0.2f%\n", incremento*100) ;
     }
->>>>>>> origin/master
 }
 
 /*void award(char *productId){
@@ -237,11 +227,11 @@ void stats(tList list){
 void withdraw(char *productId, char *userId){
 
 }
-<<<<<<< HEAD
+
 //void remove(tList list){
 
 //}
-=======
+
 void remove(tList list){
     tItemL aux;
     tPosL p;
@@ -250,7 +240,7 @@ void remove(tList list){
         printf("+ Error: remove nor possible\n");
     }
 }*/
->>>>>>> origin/master
+
 
 
 void processCommand(char *commandNumber, char command, char *param1, char *param2, char *param3, char *param4, tList *L) {
