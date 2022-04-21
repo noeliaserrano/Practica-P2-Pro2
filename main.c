@@ -103,7 +103,10 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
 
 void stats(tList list){
     tPosL p;
-    tItemL aux;
+    tItemL aux, aux2;
+    tItemS a;
+    float b = 0;
+    float c = 0;
 
     int bookCont = 0;           //contador de libros
     float bookSumPrice = 0;     //suma el precio de los libros
@@ -136,7 +139,21 @@ void stats(tList list){
         }
 
         printf("price %0.2f bids %d\n", aux.productPrice, aux.bidCounter);
+
+        ///
+        a = peek(aux.bidStack);
+        b = ( (a.productPrice - aux.productPrice) / aux.productPrice ) * 100;
+
+        if (c < b) {
+            c = b;
+            aux2 = aux;
+        }
+        ///
+
     }
+
+
+
 
     //calculamos el precio medio
     if(bookCont==0)
@@ -152,6 +169,15 @@ void stats(tList list){
     printf("\nCategory  Products    Price  Average\n");
     printf("Book      %8d %8.2f %8.2f\n", bookCont, bookSumPrice, bookMediaPrice);
     printf("Painting  %8d %8.2f %8.2f\n", paintingCont, paintSumPrice, paintMediaPrice);
+    ///
+    if(c != 0){
+        printf("Top bid: Product %s seller %s category %s price %.2f bidder %s top price %.2f increase %.2f%%\n",
+               aux2.productId, aux2.seller, aux2.productCategory == painting? "painting": "book", aux2.productPrice,
+               a.bidder, a.productPrice, c);
+    } else {
+        printf("Top bid: not possible\n");
+    }
+    ///
 }
 
 void award(char *productId){
@@ -160,9 +186,9 @@ void award(char *productId){
 void withdraw(char *productId, char *userId){
 
 }
-void remove(tList list){
+//void remove(tList list){
 
-}
+//}
 
 
 void processCommand(char *commandNumber, char command, char *param1, char *param2, char *param3, char *param4, tList *L) {
@@ -225,7 +251,7 @@ void readTasks(char *filename) {
             param3 = strtok(NULL, delimiters);
             param4 = strtok(NULL, delimiters);
 
-            processCommand(commandNumber, command[0], param1, param2, param3, param4);
+            processCommand(commandNumber, command[0], param1, param2, param3, param4, &L);
         }
 
         fclose(f);
