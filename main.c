@@ -32,8 +32,7 @@ void new(char *productId, char *userId, char *productCategory, float productPric
 
     if (findItem(productData.productId, *L) == LNULL) {     //buscamos el primer elem de la lista
         if (insertItem(productData, L))                     //insertar elementos en la lista
-            printf("* New: product %s seller %s category %s price %0.2f\n", productId, userId, productCategory,
-                   productPrice);
+            printf("* New: product %s seller %s category %s price %0.2f\n", productId, userId, productCategory, productPrice);
         else{
             printf("+ Error: New not possible\n");
             return;
@@ -71,12 +70,14 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
     tPosL p = findItem(productId, *L);
     tItemL aux;
     tItemS elemento;
+
     if (p == LNULL){
         printf("+ Error: Bid not possible\n");
         return;
     }
+
     aux = getItem(p, *L);
-    if(strcmp(aux.seller, userId) == 0 || aux.productPrice >= productPrice) {
+    if(strcmp(aux.seller, userId) == 0 || aux.productPrice >= productPrice || aux.bidStack.top == SMAX-1) {
         printf("+ Error: Bid not possible\n");
         return;
     }
@@ -93,13 +94,13 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
     elemento.productPrice=productPrice;
     aux.bidCounter = aux.bidCounter+1;
 
-    printf("* Bid: product %s seller %s ", productId, aux.seller);
+    printf("* Bid: product %s bidder %s ", productId, elemento.bidder);
 
     if(aux.productCategory == painting)
         printf("category %s ", "painting");
     else printf("category %s ", "book");
 
-    printf("price %0.2f bids %d\n", elemento.productPrice, aux.bidCounter);
+    printf("price %0.2f bids  %d\n", elemento.productPrice, aux.bidCounter);
 
     push(elemento,&aux.bidStack);
     updateItem(aux, p, L);
@@ -110,6 +111,7 @@ void stats(tList list){
     tItemL aux;
     tItemL aux2;
     float precio;
+
     createEmptyStack(&aux2.bidStack);
 
     int bookCont = 0;           //contador de libros
@@ -129,10 +131,8 @@ void stats(tList list){
 
     for (p=first(list); p!=LNULL; p=next(p, list)) {
         aux=getItem(p, list);
-        if(!isEmptyStack(aux.bidStack))
-            precio = aux.bidStack.data[aux.bidStack.top].productPrice;
-        else
-            precio = aux.productPrice;
+
+        precio = aux.productPrice;
         printf("Product %s seller %s ", aux.productId, aux.seller);
 
         if(aux.productCategory==book){          //si categoria es libro
@@ -147,11 +147,12 @@ void stats(tList list){
 
             printf("category %s ", "painting");
         }
+
         if(isEmptyStack(aux.bidStack))
             printf("price %0.2f. No bids\n", aux.productPrice);
         else {
             printf("price %0.2f bids %d top bidder %s\n",
-                   precio, aux.bidCounter, aux.bidStack.data[aux.bidStack.top].bidder);
+                   aux.productPrice, aux.bidCounter, aux.bidStack.data[aux.bidStack.top].bidder);
             if(isEmptyStack(aux2.bidStack)){
                 aux2=aux;
             }
@@ -182,7 +183,7 @@ void stats(tList list){
 
     else{
 
-        printf("Product %s seller %s ", aux2.productId, aux2.seller);
+        printf("Top bid: Product %s seller %s ", aux2.productId, aux2.seller);
         if(aux2.productCategory == painting)
             printf("category %s ", "painting");
         else printf("category %s ", "book");
