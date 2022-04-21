@@ -1,30 +1,30 @@
 /*
  * TITLE: PROGRAMMING II LABS
  * SUBTITLE: Practical 2
- * AUTHOR 1: ***************************** LOGIN 1: **********
- * AUTHOR 2: ***************************** LOGIN 2: **********
- * GROUP: *.*
- * DATE: ** / ** / **
+ * AUTHOR 1: Noelia Serrano Abraldes       LOGIN 1: noelia.serrano
+ * AUTHOR 2: Pedro Chan Piñeiro            LOGIN 2: pedro.chan.pineiro
+ * GROUP: 1.3
+ * DATE: 22 / 04 / 22
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "types.h"
 #include "bid_stack.h"
 #include "product_list.h"
 
 #define MAX_BUFFER 255
 
-
-
-
-
 void new(char *productId, char *userId, char *productCategory, float productPrice, tList *L) {
     tItemL productData;
+    //tItemS elemento;
 
     productData.bidCounter = 0;
     createEmptyStack(&productData.bidStack);
+    /*strcpy(elemento.bidder, userId);
+    elemento.productPrice = productPrice;*/
 
     //copiamos los elementos que va a tener la lista
     strcpy(productData.productId, productId);
@@ -48,7 +48,7 @@ void new(char *productId, char *userId, char *productCategory, float productPric
         printf("+ Error: New not possible\n");
 }
 
-void delete(char *productId, tList *L){
+/*void delete(char *productId, tList *L){
     tPosL p = findItem(productId, *L);
     tItemL aux;
 
@@ -56,7 +56,7 @@ void delete(char *productId, tList *L){
         printf("+ Error: Delete not possible\n");
     else{
         aux = getItem(p, *L);
-        //eliminar pila(&aux.bidStack);
+        pop(&aux.bidStack); //eliminar pila
         updateItem(aux, p, L);
         deleteAtPosition(p, L);
 
@@ -70,22 +70,25 @@ void delete(char *productId, tList *L){
         printf("price %0.2f bids %d\n", aux.productPrice, aux.bidCounter);
     }
 
-}
+}*/
 
 void bid(char *productId, char *userId, float productPrice, tList* L) {
 
     tPosL p = findItem(productId, *L);
     tItemL aux;
+    tItemS elemento;
     if (p == LNULL){
         printf("+ Error: Bid not possible\n");
         return;
     }
-    aux = getItem(p, L);
+    aux = getItem(p, *L);
 
-    if(strcmp(aux.seller, userId) == 0 || aux.productPrice >= productPrice) //precio pujado mayor al precio inicial
+    if(strcmp(aux.seller, userId) == 0 || aux.productPrice >= productPrice || aux.bidStack.top == SMAX-1)
         printf("+ Error: Bid not possible\n");
 
     else{
+        strcpy(elemento.bidder, userId);
+        elemento.productPrice=productPrice;
         aux.productPrice = productPrice;
         aux.bidCounter = aux.bidCounter+1;
 
@@ -97,6 +100,7 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
 
         printf("price %0.2f bids %d\n", productPrice, aux.bidCounter);
 
+        push(elemento,&aux.bidStack);
         updateItem(aux, p, L);
     }
 }
@@ -113,13 +117,15 @@ void stats(tList list){
     float paintSumPrice = 0;    //suma el precio de las pinturas
     float paintMediaPrice;      //media de los precios
 
+    float incremento;
+
     if(isEmptyList(list)){
         printf("+ Error: Stats not possible\n");
         return;
     }
 
     for (p=first(list); p!=LNULL; p=next(p, list)) {
-        aux= getItem(p, &list);
+        aux= getItem(p, list);
         printf("Product %s seller %s ", aux.productId, aux.seller);
 
         if(aux.productCategory==book){          //si categoria es libro
@@ -134,8 +140,11 @@ void stats(tList list){
 
             printf("category %s ", "painting");
         }
-
-        printf("price %0.2f bids %d\n", aux.productPrice, aux.bidCounter);
+        if(isEmptyStack(aux.bidStack))
+            printf("price %0.2f. No bids\n", aux.productPrice);
+        else
+            printf("price %0.2f bids %d top bidder %s\n",
+                   aux.productPrice, aux.bidCounter, aux.bidStack.data[aux.bidStack.top].bidder);
     }
 
     //calculamos el precio medio
@@ -152,17 +161,40 @@ void stats(tList list){
     printf("\nCategory  Products    Price  Average\n");
     printf("Book      %8d %8.2f %8.2f\n", bookCont, bookSumPrice, bookMediaPrice);
     printf("Painting  %8d %8.2f %8.2f\n", paintingCont, paintSumPrice, paintMediaPrice);
+
+
+    //pila de pujas
+
+    if(isEmptyStack(aux.bidStack))
+        printf("Top bid not possible\n");
+
+    else{
+
+        printf("Product %s seller %s ", aux.productId, aux.seller);
+        if(aux.productCategory == painting)
+            printf("category %s ", "painting");
+        else printf("category %s ", "book");
+
+        printf("price %0.2f bidder %s top price %0.2f\n", aux.productPrice, aux.bidStack.data[aux.bidStack.top].bidder, aux.bidStack.data[aux.bidStack.top].productPrice);
+        incremento = (aux.bidStack.data[aux.bidStack.top].productPrice - aux.productPrice)/(aux.productPrice);
+        printf("increase %0.2f", incremento*100) ;
+    }
 }
 
-void award(char *productId){
+/*void award(char *productId){
 
 }
 void withdraw(char *productId, char *userId){
 
 }
 void remove(tList list){
+    tItemL aux;
+    tPosL p;
 
-}
+    if(isEmptyStack(aux.bidStack)){
+        printf("+ Error: remove nor possible\n");
+    }
+}*/
 
 
 void processCommand(char *commandNumber, char command, char *param1, char *param2, char *param3, char *param4, tList *L) {
@@ -186,20 +218,20 @@ void processCommand(char *commandNumber, char command, char *param1, char *param
             printf("%s %c: product %s bidder %s price %0.2f\n", commandNumber, command, param1, param2, price);
             bid(param1, param2, price, L);
             break;
-        case 'D':
+        /*case 'D':
             printf("********************\n");
             printf("%s %c: product %s\n", commandNumber, command, param1);
             delete(param1, L);
             break;
         case 'A':
-
+            printf("********************\n");
             break;
         case 'W':
-
+            printf("********************\n");
             break;
         case 'R':
-
-            break;
+            printf("********************\n");
+            break;*/
         default:
             break;
     }
@@ -225,7 +257,7 @@ void readTasks(char *filename) {
             param3 = strtok(NULL, delimiters);
             param4 = strtok(NULL, delimiters);
 
-            processCommand(commandNumber, command[0], param1, param2, param3, param4);
+            processCommand(commandNumber, command[0], param1, param2, param3, param4, &L);
         }
 
         fclose(f);
