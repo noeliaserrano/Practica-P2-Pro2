@@ -1,13 +1,3 @@
-/*
- * TITLE: PROGRAMMING II LABS
- * SUBTITLE: Practical 2
- * AUTHOR 1: Noelia Serrano Abraldes       LOGIN 1: noelia.serrano
- * AUTHOR 2: Pedro Chan Piñeiro            LOGIN 2: pedro.chan.pineiro
- * GROUP: 1.3
- * DATE: 22 / 04 / 22
- */
-
-///
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +7,13 @@
 #include "product_list.h"
 
 #define MAX_BUFFER 255
+
+/*char *categorias(tProductCategory categoria){
+
+    if(categoria == painting)
+        printf("category %s ", "painting");
+    else printf("category %s ", "book");
+}*/
 
 void new(char *productId, char *userId, char *productCategory, float productPrice, tList *L) {
     tItemL productData;
@@ -78,37 +75,41 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
         printf("+ Error: Bid not possible\n");
         return;
     }
-    aux = getItem(p, L);
-
-    if(strcmp(aux.seller, userId) == 0 || aux.productPrice >= productPrice || aux.bidStack.top == SMAX-1)
+    aux = getItem(p, *L);
+    if(strcmp(aux.seller, userId) == 0 || aux.productPrice >= productPrice) {
         printf("+ Error: Bid not possible\n");
-
-    else{
-        strcpy(elemento.bidder, userId);
-        elemento.productPrice=productPrice;
-        //aux.productPrice = productPrice;
-        aux.bidCounter = aux.bidCounter+1;
-
-        printf("* Bid: product %s seller %s ", productId, aux.seller);
-
-        if(aux.productCategory == painting)
-            printf("category %s ", "painting");
-        else printf("category %s ", "book");
-
-        printf("price %0.2f bids %d\n", productPrice, aux.bidCounter);
-
-        push(elemento,&aux.bidStack);
-        updateItem(aux, p, L);
+        return;
     }
+
+    else if(!isEmptyStack(aux.bidStack)){
+        elemento = peek(aux.bidStack);
+        if(elemento.productPrice>productPrice){
+            printf("+ Error: Bid not possible\n");
+            return;
+        }
+    }
+
+    strcpy(elemento.bidder, userId);
+    elemento.productPrice=productPrice;
+    aux.bidCounter = aux.bidCounter+1;
+
+    printf("* Bid: product %s seller %s ", productId, aux.seller);
+
+    if(aux.productCategory == painting)
+        printf("category %s ", "painting");
+    else printf("category %s ", "book");
+
+    printf("price %0.2f bids %d\n", elemento.productPrice, aux.bidCounter);
+
+    push(elemento,&aux.bidStack);
+    updateItem(aux, p, L);
 }
 
 void stats(tList list){
     tPosL p;
-    tItemL aux, aux2;
-    tItemS a;
-    float b = 0;
-    float c = 0;
-
+    tItemL aux;
+    tItemL aux2;
+    float precio;
     createEmptyStack(&aux2.bidStack);
 
     int bookCont = 0;           //contador de libros
@@ -120,7 +121,6 @@ void stats(tList list){
     float paintMediaPrice;      //media de los precios
 
     float incremento;
-    float precio;
 
     if(isEmptyList(list)){
         printf("+ Error: Stats not possible\n");
@@ -128,56 +128,37 @@ void stats(tList list){
     }
 
     for (p=first(list); p!=LNULL; p=next(p, list)) {
-        aux= getItem(p, list);
-
+        aux=getItem(p, list);
         if(!isEmptyStack(aux.bidStack))
             precio = aux.bidStack.data[aux.bidStack.top].productPrice;
         else
             precio = aux.productPrice;
-
         printf("Product %s seller %s ", aux.productId, aux.seller);
 
         if(aux.productCategory==book){          //si categoria es libro
             bookCont++;                         //contador suma 1
-            bookSumPrice+=aux.productPrice;     //suma el precio del producto
+            bookSumPrice+=precio;     //suma el precio del producto
 
             printf("category %s ", "book");
 
         }else{
             paintingCont++;
-            paintSumPrice+=aux.productPrice;
+            paintSumPrice+=precio;
 
             printf("category %s ", "painting");
         }
-
-
-        printf("price %0.2f bids %d\n", aux.productPrice, aux.bidCounter);
-
-        ///
-        a = peek(aux.bidStack);
-        b = ( (a.productPrice - aux.productPrice) / aux.productPrice ) * 100;
-
-        if (c < b) {
-            c = b;
-            aux2 = aux;
-        }
-        ///
-
         if(isEmptyStack(aux.bidStack))
             printf("price %0.2f. No bids\n", aux.productPrice);
-        else
+        else {
             printf("price %0.2f bids %d top bidder %s\n",
                    precio, aux.bidCounter, aux.bidStack.data[aux.bidStack.top].bidder);
-
             if(isEmptyStack(aux2.bidStack)){
                 aux2=aux;
             }
-            if(aux.bidStack.data[aux.bidStack.top].productPrice>aux2.bidStack.data[aux2.bidStack.top].productPrice)
+            if(aux.bidStack.data[aux.bidStack.top].productPrice > aux2.bidStack.data[aux2.bidStack.top].productPrice)
                 aux2=aux;
+        }
     }
-
-
-
 
     //calculamos el precio medio
     if(bookCont==0)
@@ -193,16 +174,6 @@ void stats(tList list){
     printf("\nCategory  Products    Price  Average\n");
     printf("Book      %8d %8.2f %8.2f\n", bookCont, bookSumPrice, bookMediaPrice);
     printf("Painting  %8d %8.2f %8.2f\n", paintingCont, paintSumPrice, paintMediaPrice);
-    ///
-    if(c != 0){
-        printf("Top bid: Product %s seller %s category %s price %.2f bidder %s top price %.2f increase %.2f%%\n",
-               aux2.productId, aux2.seller, aux2.productCategory == painting? "painting": "book", aux2.productPrice,
-               a.bidder, a.productPrice, c);
-    } else {
-        printf("Top bid: not possible\n");
-    }
-
-
 
     //pila de pujas
 
@@ -210,14 +181,16 @@ void stats(tList list){
         printf("Top bid not possible\n");
 
     else{
-        printf("Top bid: Product %s seller %s ", aux2.productId, aux2.seller);
+
+        printf("Product %s seller %s ", aux2.productId, aux2.seller);
         if(aux2.productCategory == painting)
             printf("category %s ", "painting");
         else printf("category %s ", "book");
 
-        printf("price %0.2f bidder %s top price %0.2f ", aux2.productPrice, aux2.bidStack.data[aux2.bidStack.top].bidder, aux2.bidStack.data[aux2.bidStack.top].productPrice);
+        printf("price %0.2f bidder %s top price %0.2f ", aux2.productPrice, aux2.bidStack.data[aux2.bidStack.top].bidder,
+               aux2.bidStack.data[aux2.bidStack.top].productPrice);
         incremento = (aux2.bidStack.data[aux2.bidStack.top].productPrice - aux2.productPrice)/(aux2.productPrice);
-        printf("increase %0.2f%\n", incremento*100) ;
+        printf("increase %0.2f%%\n", incremento*100) ;
     }
 }
 
@@ -227,11 +200,6 @@ void stats(tList list){
 void withdraw(char *productId, char *userId){
 
 }
-
-//void remove(tList list){
-
-//}
-
 void remove(tList list){
     tItemL aux;
     tPosL p;
@@ -240,7 +208,6 @@ void remove(tList list){
         printf("+ Error: remove nor possible\n");
     }
 }*/
-
 
 
 void processCommand(char *commandNumber, char command, char *param1, char *param2, char *param3, char *param4, tList *L) {
@@ -264,20 +231,20 @@ void processCommand(char *commandNumber, char command, char *param1, char *param
             printf("%s %c: product %s bidder %s price %0.2f\n", commandNumber, command, param1, param2, price);
             bid(param1, param2, price, L);
             break;
-        /*case 'D':
-            printf("********************\n");
-            printf("%s %c: product %s\n", commandNumber, command, param1);
-            delete(param1, L);
-            break;
-        case 'A':
-            printf("********************\n");
-            break;
-        case 'W':
-            printf("********************\n");
-            break;
-        case 'R':
-            printf("********************\n");
-            break;*/
+            /*case 'D':
+                printf("********************\n");
+                printf("%s %c: product %s\n", commandNumber, command, param1);
+                delete(param1, L);
+                break;
+            case 'A':
+                printf("********************\n");
+                break;
+            case 'W':
+                printf("********************\n");
+                break;
+            case 'R':
+                printf("********************\n");
+                break;*/
         default:
             break;
     }
@@ -321,9 +288,9 @@ int main(int nargs, char **args) {
     if (nargs > 1) {
         file_name = args[1];
     } else {
-        #ifdef INPUT_FILE
+#ifdef INPUT_FILE
         file_name = INPUT_FILE;
-        #endif
+#endif
     }
 
     readTasks(file_name);
