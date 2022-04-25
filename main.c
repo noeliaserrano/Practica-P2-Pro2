@@ -16,6 +16,18 @@
 }*/
 
 void new(char *productId, char *userId, char *productCategory, float productPrice, tList *L) {
+/* { Objetivo: Dar de alta un nuevo producto
+ *   Entrada:
+ *      productId: cadena que corresponde con el id del producto
+ *      userId: cadena que corresponde con el id de cada usuario
+ *      productCategory: tipo enumerado, con la categoria
+ *      productPrice: float con el precio de cada producto
+ *   Salida:
+ *      la lista con un nuevo producto, se añade en el orden correspondiente si no esta añadido previamente y una pila
+ *       }
+ *   PreCD: la lista esta inicializa
+ *   PostCD: las posiciones de los productos pueden haber cambiado
+ * */
     tItemL productData;
 
     productData.bidCounter = 0;
@@ -41,7 +53,7 @@ void new(char *productId, char *userId, char *productCategory, float productPric
         printf("+ Error: New not possible\n");
 }
 
-/*void delete(char *productId, tList *L){
+void delete(char *productId, tList *L){
     tPosL p = findItem(productId, *L);
     tItemL aux;
 
@@ -63,10 +75,19 @@ void new(char *productId, char *userId, char *productCategory, float productPric
         printf("price %0.2f bids %d\n", aux.productPrice, aux.bidCounter);
     }
 
-}*/
+}
 
 void bid(char *productId, char *userId, float productPrice, tList* L) {
-
+/* { Objetivo: Pujar por un determinado producto
+ *   Entrada:
+ *      productId: cadena que corresponde con el id del producto
+ *      userId: cadena que corresponde con el id de cada usuario
+ *      productPrice: float con el precio de cada producto
+ *      tList: la lista ordenada con todos los productos y sus pujas
+ *   Salida:
+ *      tList: la lista con una nueva puja en la pila
+ *   PreCD: la lista de productos y la pila deben de estar inicializadas}
+ * */
     tPosL p = findItem(productId, *L);
     tItemL aux;
     tItemS elemento;
@@ -107,10 +128,19 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
 }
 
 void stats(tList list){
+/* { Objetivo: Listado de los productos actuales de BIDFIC y sus datos
+ *   Entrada:
+ *      tList: la lista ordenada con todos los
+ *      tList: la lista ordenada con todos los productos y sus pujas
+ *   Salida:
+ *      tList: la lista sin modificar
+ *   PreCD: la lista de productos y la pila deben de estar inicializadas }
+ *   */
     tPosL p;
     tItemL aux;
     tItemL aux2;
     float precio;
+    float incremento;
 
     createEmptyStack(&aux2.bidStack);
 
@@ -121,8 +151,6 @@ void stats(tList list){
     int paintingCont = 0;       //contador de pinturas
     float paintSumPrice = 0;    //suma el precio de las pinturas
     float paintMediaPrice;      //media de los precios
-
-    float incremento;
 
     if(isEmptyList(list)){
         printf("+ Error: Stats not possible\n");
@@ -137,7 +165,7 @@ void stats(tList list){
 
         if(aux.productCategory==book){          //si categoria es libro
             bookCont++;                         //contador suma 1
-            bookSumPrice+=precio;     //suma el precio del producto
+            bookSumPrice+=precio;               //suma el precio del producto
 
             printf("category %s ", "book");
 
@@ -195,20 +223,37 @@ void stats(tList list){
     }
 }
 
-/*void award(char *productId){
+void award(char *productId, tList *L){
+    tPosL p = findItem(productId, *L);
+    tItemL aux;
+
+    if (p == LNULL || isEmptyStack(aux.bidStack)){    //producto no existe o pila vacia
+        printf("+ Error: Award not possible\n");
+        return;
+    }
 
 }
-void withdraw(char *productId, char *userId){
+
+void withdraw(char *productId, char *userId, tList *L){
+    tPosL p = findItem(productId, *L);
+    tItemL aux;
+
+    if (p == LNULL || isEmptyStack(aux.bidStack) || strcmp(aux.seller, userId) != 0 ){
+        printf("+ Error: Withdraw not possible\n");
+        return;
+    }
+
 
 }
-void remove(tList list){
+
+void Remove(tList *L){
     tItemL aux;
     tPosL p;
 
     if(isEmptyStack(aux.bidStack)){
-        printf("+ Error: remove nor possible\n");
+        printf("+ Error: Remove not possible\n");
     }
-}*/
+}
 
 
 void processCommand(char *commandNumber, char command, char *param1, char *param2, char *param3, char *param4, tList *L) {
@@ -232,20 +277,26 @@ void processCommand(char *commandNumber, char command, char *param1, char *param
             printf("%s %c: product %s bidder %s price %0.2f\n", commandNumber, command, param1, param2, price);
             bid(param1, param2, price, L);
             break;
-            /*case 'D':
-                printf("********************\n");
-                printf("%s %c: product %s\n", commandNumber, command, param1);
-                delete(param1, L);
-                break;
-            case 'A':
-                printf("********************\n");
-                break;
-            case 'W':
-                printf("********************\n");
-                break;
-            case 'R':
-                printf("********************\n");
-                break;*/
+        case 'D':
+            printf("********************\n");
+            printf("%s %c: product %s\n", commandNumber, command, param1);
+            delete(param1, L);
+            break;
+        case 'A':
+            printf("********************\n");
+            printf("%s %c: product %s\n", commandNumber, command, param1);
+            award(param1, L);
+            break;
+        case 'W':
+            printf("********************\n");
+            printf("%s %c: product %s bidder %s\n", commandNumber, command, param1, param2);
+            withdraw(param1, param2, L);
+            break;
+        case 'R':
+            printf("********************\n");
+            printf("%s %c \n", commandNumber, command);
+            Remove(*L);
+            break;
         default:
             break;
     }
