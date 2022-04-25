@@ -8,12 +8,12 @@
 
 #define MAX_BUFFER 255
 
-/*char *categorias(tProductCategory categoria){
+char *categorias(tProductCategory categoria){
 
     if(categoria == painting)
         printf("category %s ", "painting");
     else printf("category %s ", "book");
-}*/
+}
 
 void new(char *productId, char *userId, char *productCategory, float productPrice, tList *L) {
 /* { Objetivo: Dar de alta un nuevo producto
@@ -68,9 +68,7 @@ void delete(char *productId, tList *L){
         printf("* Delete: product %s seller %s ", productId, aux.seller);
 
         //selecccion de categoria
-        if(aux.productCategory == painting)
-            printf("category %s ", "painting");
-        else printf("category %s ", "book");
+        categorias(aux.productCategory);
 
         printf("price %0.2f bids %d\n", aux.productPrice, aux.bidCounter);
     }
@@ -117,9 +115,7 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
 
     printf("* Bid: product %s bidder %s ", productId, elemento.bidder);
 
-    if(aux.productCategory == painting)
-        printf("category %s ", "painting");
-    else printf("category %s ", "book");
+    categorias(aux.productCategory);
 
     printf("price %0.2f bids  %d\n", elemento.productPrice, aux.bidCounter);
 
@@ -212,9 +208,7 @@ void stats(tList list){
     else{
 
         printf("Top bid: Product %s seller %s ", aux2.productId, aux2.seller);
-        if(aux2.productCategory == painting)
-            printf("category %s ", "painting");
-        else printf("category %s ", "book");
+        categorias(aux2.productCategory);
 
         printf("price %0.2f bidder %s top price %0.2f ", aux2.productPrice, aux2.bidStack.data[aux2.bidStack.top].bidder,
                aux2.bidStack.data[aux2.bidStack.top].productPrice);
