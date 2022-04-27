@@ -73,6 +73,12 @@ tPosL previous (tPosL, tList);
  * PreCD: La posición indicada es una posición válida en la lista.*/
 
 tPosL findPosition(tItemL d, tList L);
+/* Objetivo: Busca el primer elemento con cierto contenido en la lista
+ * Entrada:
+ *      tItemL: Contenido del elemento buscado
+ *      tList: Lista donde realizar la busqueda
+ * PostCD: Posicion del elemento encontrado o nulo si no se encuentra
+ * */
 
 bool insertItem (tItemL, tList*);
 /* Objetivo: Inserta un elemento en tList de forma ordenada por el campo productId.

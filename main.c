@@ -60,16 +60,13 @@ void delete(char *productId, tList *L){
     if(p == LNULL)
         printf("+ Error: Delete not possible\n");
     else{
-        aux = getItem(p, *L);
+        aux = getItem(p, L);
         pop(&aux.bidStack); //eliminar pila
         updateItem(aux, p, L);
         deleteAtPosition(p, L);
 
         printf("* Delete: product %s seller %s ", productId, aux.seller);
-
-        //selecccion de categoria
         categorias(aux.productCategory);
-
         printf("price %0.2f bids %d\n", aux.productPrice, aux.bidCounter);
     }
 
@@ -95,7 +92,7 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
         return;
     }
 
-    aux = getItem(p, *L);
+    aux = getItem(p, L);
     if(strcmp(aux.seller, userId) == 0 || aux.productPrice >= productPrice || aux.bidStack.top == SMAX-1) {
         printf("+ Error: Bid not possible\n");
         return;
@@ -113,14 +110,66 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
     elemento.productPrice=productPrice;
     aux.bidCounter = aux.bidCounter+1;
 
-    printf("* Bid: product %s bidder %s ", productId, elemento.bidder);
-
-    categorias(aux.productCategory);
-
-    printf("price %0.2f bids  %d\n", elemento.productPrice, aux.bidCounter);
-
     push(elemento,&aux.bidStack);
     updateItem(aux, p, L);
+
+    printf("* Bid: product %s bidder %s ", productId, elemento.bidder);
+    categorias(aux.productCategory);
+    printf("price %0.2f bids  %d\n", elemento.productPrice, aux.bidCounter);
+}
+
+void award(char *productId, tList *L){
+    tPosL p = findItem(productId, *L);
+    tItemL aux;
+
+    if (p == LNULL){    //producto no existe o pila vacia
+        printf("+ Error: Award not possible\n");
+        return;
+    }
+    aux = getItem(p, *L);
+    if(isEmptyStack(aux.bidStack)){    //producto no existe o pila vacia
+        printf("+ Error: Award not possible\n");
+    }
+    else { //si es la mayor de las pujas
+        printf("* Award: product %s bidder %s ", productId, aux.bidStack.data[aux.bidStack.top].bidder);
+        categorias(aux.productCategory);
+        printf("price %0.2f\n", aux.bidStack.data[aux.bidStack.top].productPrice);
+
+        while(!isEmptyStack(aux.bidStack)) {
+            pop(&aux.bidStack); //eliminar pila
+        }
+        updateItem(aux, p, L);
+        deleteAtPosition(p, L);
+    }
+}
+
+void withdraw(char *productId, char *userId, tList *L){
+    tPosL p = findItem(productId, *L);
+    tItemL aux;
+
+    if (p == LNULL){
+        printf("+ Error: Withdraw not possible\n");
+        return;
+    }
+    aux = getItem(p, *L);
+    if (isEmptyStack(aux.bidStack)){
+        printf("+ Error: Withdraw not possible\n");
+        return;
+    }
+    if(strcmp(aux.bidStack.data[aux.bidStack.top].bidder, userId) != 0){
+        printf("+ Error: Withdraw not possible\n");
+        return;
+    }
+    else {
+        printf("* Withdraw: product %s bidder %s ", productId, aux.bidStack.data[aux.bidStack.top].bidder);
+        categorias(aux.productCategory);
+        printf("price %0.2f bids %d\n", aux.bidStack.data[aux.bidStack.top].productPrice, aux.bidCounter);
+
+
+        pop(&aux.bidStack);
+        aux.bidCounter--;
+        updateItem(aux, p, L);
+    }
 }
 
 void stats(tList list){
@@ -206,38 +255,15 @@ void stats(tList list){
         printf("Top bid not possible\n");
 
     else{
-
         printf("Top bid: Product %s seller %s ", aux2.productId, aux2.seller);
         categorias(aux2.productCategory);
-
         printf("price %0.2f bidder %s top price %0.2f ", aux2.productPrice, aux2.bidStack.data[aux2.bidStack.top].bidder,
                aux2.bidStack.data[aux2.bidStack.top].productPrice);
+
         incremento = (aux2.bidStack.data[aux2.bidStack.top].productPrice - aux2.productPrice)/(aux2.productPrice);
+
         printf("increase %0.2f%%\n", incremento*100) ;
     }
-}
-
-void award(char *productId, tList *L){
-    tPosL p = findItem(productId, *L);
-    tItemL aux;
-
-    if (p == LNULL || isEmptyStack(aux.bidStack)){    //producto no existe o pila vacia
-        printf("+ Error: Award not possible\n");
-        return;
-    }
-
-}
-
-void withdraw(char *productId, char *userId, tList *L){
-    tPosL p = findItem(productId, *L);
-    tItemL aux;
-
-    if (p == LNULL || isEmptyStack(aux.bidStack) || strcmp(aux.seller, userId) != 0 ){
-        printf("+ Error: Withdraw not possible\n");
-        return;
-    }
-
-
 }
 
 void Remove(tList *L){
@@ -247,6 +273,7 @@ void Remove(tList *L){
     if(isEmptyStack(aux.bidStack)){
         printf("+ Error: Remove not possible\n");
     }
+
 }
 
 
