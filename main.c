@@ -266,16 +266,25 @@ void stats(tList list){
     }
 }
 
-void Remove(tList *L){
+void Remove(tList *L) {
     tItemL aux;
     tPosL p;
+    int aux2 = 0;
 
-    if(isEmptyStack(aux.bidStack)){
-        printf("+ Error: Remove not possible\n");
+    for (p = first(*L); p != LNULL; p = next(p, *L)) {
+        aux = getItem(p, *L);
+
+        if (aux.bidCounter == 0) {
+            printf("Removing product %s seller %s ", aux.productId, aux.seller);
+            categorias(aux.productCategory);
+            printf("price %0.2f bids %d\n", aux.productPrice, aux.bidCounter);
+
+            deleteAtPosition(p, L);
+            aux2++;
+        }
     }
-
+    if(aux2 == 0) printf("+ Error: Remove not possible\n");
 }
-
 
 void processCommand(char *commandNumber, char command, char *param1, char *param2, char *param3, char *param4, tList *L) {
 
@@ -316,7 +325,7 @@ void processCommand(char *commandNumber, char command, char *param1, char *param
         case 'R':
             printf("********************\n");
             printf("%s %c \n", commandNumber, command);
-            Remove(*L);
+            Remove(L);
             break;
         default:
             break;
