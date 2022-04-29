@@ -4,7 +4,7 @@
  * AUTHOR 1: Noelia Serrano Abraldes       LOGIN 1: noelia.serrano
  * AUTHOR 2: Pedro Chan Piñeiro            LOGIN 2: pedro.chan.pineiro
  * GROUP: 1.3
- * DATE: 22 / 04 / 22
+ * DATE: 29 / 04 / 22
  */
 
 #ifndef PRODUCT_LIST_H

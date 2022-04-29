@@ -1,3 +1,12 @@
+/*
+ * TITLE: PROGRAMMING II LABS
+ * SUBTITLE: Practical 2
+ * AUTHOR 1: Noelia Serrano Abraldes       LOGIN 1: noelia.serrano
+ * AUTHOR 2: Pedro Chan Piñeiro            LOGIN 2: pedro.chan.pineiro
+ * GROUP: 1.3
+ * DATE: 29 / 04 / 22
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +18,12 @@
 #define MAX_BUFFER 255
 
 char *categorias(tProductCategory categoria){
-
+/* { Objetivo: Seleccionar la categoria de un producto
+ *   Entrada:
+ *      categoria: un elemento de tipo tProductCategory
+ *   Salida:
+ *      una de las dos categorias seleccionadas
+ *      */
     if(categoria == painting)
         printf("category %s ", "painting");
     else printf("category %s ", "book");
@@ -54,14 +68,23 @@ void new(char *productId, char *userId, char *productCategory, float productPric
 }
 
 void delete(char *productId, tList *L){
+/* { Objetivo: Dar de baja un producto
+ *   Entrada:
+ *      productId: una cadena con el identificador del producto.
+ *      tList: la lista donde se encuentra el producto.
+ *   Salida:
+ *      tList: la lista sin el producto, si existe.
+ *   PreCD: la lista debe de estar inicializada
+ *   PostCD: las posiciones de los productos de la lista anteriores a la posición eliminada pueden haber variado.}
+ *   */
     tPosL p = findItem(productId, *L);
     tItemL aux;
 
     if(p == LNULL)
         printf("+ Error: Delete not possible\n");
     else{
-        aux = getItem(p, L);
-        pop(&aux.bidStack); //eliminar pila
+        aux = getItem(p, *L);
+        pop(&aux.bidStack);
         updateItem(aux, p, L);
         deleteAtPosition(p, L);
 
@@ -72,7 +95,7 @@ void delete(char *productId, tList *L){
 
 }
 
-void bid(char *productId, char *userId, float productPrice, tList* L) {
+void bid(char *productId, char *userId, float productPrice, tProductCategory *categoria, tList* L) {
 /* { Objetivo: Pujar por un determinado producto
  *   Entrada:
  *      productId: cadena que corresponde con el id del producto
@@ -92,7 +115,7 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
         return;
     }
 
-    aux = getItem(p, L);
+    aux = getItem(p, *L);
     if(strcmp(aux.seller, userId) == 0 || aux.productPrice >= productPrice || aux.bidStack.top == SMAX-1) {
         printf("+ Error: Bid not possible\n");
         return;
@@ -110,24 +133,35 @@ void bid(char *productId, char *userId, float productPrice, tList* L) {
     elemento.productPrice=productPrice;
     aux.bidCounter = aux.bidCounter+1;
 
+
     push(elemento,&aux.bidStack);
     updateItem(aux, p, L);
 
     printf("* Bid: product %s bidder %s ", productId, elemento.bidder);
     categorias(aux.productCategory);
+    *categoria = aux.productCategory;
     printf("price %0.2f bids  %d\n", elemento.productPrice, aux.bidCounter);
 }
 
 void award(char *productId, tList *L){
+/* { Objetivo: Se asigna el ganador de una puja
+ *   Entrada:
+ *      productId: cadena que corresponde con el id del producto.
+ *      tList: la lista ordenadas con todos los productos y pujas.
+ *   Salida:
+ *      tList: la lista sin los productos que han sido vendidos
+ *   PreCD: la lista inicializada
+ *   PostCD: el orden de los productos puede haber variado}
+ *   */
     tPosL p = findItem(productId, *L);
     tItemL aux;
 
-    if (p == LNULL){    //producto no existe o pila vacia
+    if (p == LNULL){    //producto no existe
         printf("+ Error: Award not possible\n");
         return;
     }
     aux = getItem(p, *L);
-    if(isEmptyStack(aux.bidStack)){    //producto no existe o pila vacia
+    if(isEmptyStack(aux.bidStack)){    //pila vacia
         printf("+ Error: Award not possible\n");
     }
     else { //si es la mayor de las pujas
@@ -144,6 +178,15 @@ void award(char *productId, tList *L){
 }
 
 void withdraw(char *productId, char *userId, tList *L){
+/* { Objetivo: la max puja actual del producto es eliminada.
+ *   Entrada:
+ *      productId: cadena que corresponde con el id del producto.
+ *      userId: cadena que corresponde con el id de cada usuario.
+ *      tList: la lista ordenada con los productos.
+ *   Salida:
+ *      tList: la lista sin la puja mas alta y con el contador de pujas decrementado
+ *   PreCD: la lista tiene que estar inicializada }
+ *   */
     tPosL p = findItem(productId, *L);
     tItemL aux;
 
@@ -172,7 +215,7 @@ void withdraw(char *productId, char *userId, tList *L){
     }
 }
 
-void stats(tList list){
+void stats(tProductCategory categoria, tList list){
 /* { Objetivo: Listado de los productos actuales de BIDFIC y sus datos
  *   Entrada:
  *      tList: la lista ordenada con todos los
@@ -226,10 +269,10 @@ void stats(tList list){
         else {
             printf("price %0.2f bids %d top bidder %s\n",
                    aux.productPrice, aux.bidCounter, aux.bidStack.data[aux.bidStack.top].bidder);
-            if(isEmptyStack(aux2.bidStack)){
+            if(isEmptyStack(aux2.bidStack)&&categoria==aux.productCategory){
                 aux2=aux;
             }
-            if(aux.bidStack.data[aux.bidStack.top].productPrice > aux2.bidStack.data[aux2.bidStack.top].productPrice)
+            if(aux.bidStack.data[aux.bidStack.top].productPrice > aux2.bidStack.data[aux2.bidStack.top].productPrice&&categoria==aux.productCategory)
                 aux2=aux;
         }
     }
@@ -266,27 +309,61 @@ void stats(tList list){
     }
 }
 
+//esta remove con mayuscula, porque esta declarado previamente en stdio.h
 void Remove(tList *L) {
+/* { Objetivo: eliminar todos los prodcutos que no tengan pujas.
+ *   Entrada:
+ *      tList: la lista ordenada con todos los productos
+ *   Salida:
+ *      tList: la lista sin los productos que no tenian pujas
+ *   PreCD: la lista debe de estar inicializada
+ *   PostCD: el orden de la lista puede haber variado}
+ *   */
     tItemL aux;
     tPosL p;
-    int aux2 = 0;
+    bool puja = false;
 
     for (p = first(*L); p != LNULL; p = next(p, *L)) {
         aux = getItem(p, *L);
 
         if (aux.bidCounter == 0) {
+
             printf("Removing product %s seller %s ", aux.productId, aux.seller);
             categorias(aux.productCategory);
             printf("price %0.2f bids %d\n", aux.productPrice, aux.bidCounter);
 
+            puja = true;
             deleteAtPosition(p, L);
-            aux2++;
         }
     }
-    if(aux2 == 0) printf("+ Error: Remove not possible\n");
+    if(!puja) {
+        printf("+ Error: Remove not possible\n");
+        return;
+    }
 }
 
-void processCommand(char *commandNumber, char command, char *param1, char *param2, char *param3, char *param4, tList *L) {
+void processCommand(char *commandNumber, char command, char *param1, char *param2, char *param3, char *param4, tProductCategory *categoria, tList *L) {
+    /*
+     * Objetivo: hace la llamada de las operaciones que trabajan sobre la lista.
+     * Entrada:
+     *      Una cadena que representa el número de la operación a realizar.
+     *      Un caracter que representa el tipo de operación a realizar.
+     *      Una cadena que se corresponde con el primer parámetro que recibirá la operación o con ninguno.
+     *      Una cadena que se corresponde con el segundo parámetro que recibe la operación o con ninguno.
+     *      Una cadena que se corresponde con el tercer parámetro que recibe la operación o con ninguno.
+     *      Una cadena que se corresponde con el cuarto parámetro que recibe la operación o con ninguno.
+     *      Una lista ordenada con todos los productos, sus datos y sus pujas.
+     * Salida: Hay 5 posibles salidas:
+     *      La primera es la lista modificada tras la llamada a ”new”.
+     *      La segunda muestra el contenido actual lista con la llamada a ”stats”.
+     *      La tercera es la lista modificada tras la llamada a ”bid”.
+     *      La cuarta es la lista modificada tras la llamada a ”delete”.
+     *      La quinta es la lista modificada tras la llamada a ”award”.
+     *      La sexta es la lista modificada tras la llamada a ”withdraw”.
+     *      La septima es la lista modificada tras la llamada a ”Remove”.
+     * Precondiciones: La sintaxis de las operaciones que hay en el fichero es correcta.
+     * Postcondiciones: La lista puede haber sido modificada.
+     */
 
     float price;
     switch (command) {
@@ -299,13 +376,13 @@ void processCommand(char *commandNumber, char command, char *param1, char *param
         case 'S':
             printf("********************\n");
             printf("%s %c\n", commandNumber, command);
-            stats(*L);
+            stats(*categoria, *L);
             break;
         case 'B':
             price = atof(param3);
             printf("********************\n");
             printf("%s %c: product %s bidder %s price %0.2f\n", commandNumber, command, param1, param2, price);
-            bid(param1, param2, price, L);
+            bid(param1, param2, price, categoria, L);
             break;
         case 'D':
             printf("********************\n");
@@ -333,12 +410,18 @@ void processCommand(char *commandNumber, char command, char *param1, char *param
 }
 
 void readTasks(char *filename) {
+    /* Objetivo: Procesa un fichero, extrae lı́nea a lı́nea las operaciones que se tienen que
+       *         ejecutar y crea una lista de productos y la inicializa.
+       * Entrada:
+       *         Una cadena que contiene el nombre del fichero, del que se leerán las operaciones a realizar.
+       */
     FILE *f = NULL;
     char *commandNumber, *command, *param1, *param2, *param3, *param4;
     const char delimiters[] = " \n\r";
     char buffer[MAX_BUFFER];
 
     tList L;
+    tProductCategory categoria = (tProductCategory) NULL;
     createEmptyList(&L);
     f = fopen(filename, "r");
 
@@ -352,7 +435,7 @@ void readTasks(char *filename) {
             param3 = strtok(NULL, delimiters);
             param4 = strtok(NULL, delimiters);
 
-            processCommand(commandNumber, command[0], param1, param2, param3, param4, &L);
+            processCommand(commandNumber, command[0], param1, param2, param3, param4, &categoria, &L);
         }
 
         fclose(f);
